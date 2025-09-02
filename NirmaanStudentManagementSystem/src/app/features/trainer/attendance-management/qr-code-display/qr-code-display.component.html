@@ -1,1 +1,120 @@
-<p>qr-code-display works!</p>
+<div class="p-6">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">QR Code for Attendance</h1>
+    <p class="text-gray-600 mt-2">Generate and display QR code for student attendance</p>
+  </div>
+
+  <div class="max-w-2xl mx-auto">
+    <!-- Batch Selection -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Select Batch</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Batch</label>
+          <select
+            [(ngModel)]="selectedBatchId"
+            class="form-select">
+            <option value="">Select Batch</option>
+            <option *ngFor="let batch of batches" [value]="batch.id">
+              {{ batch.batchName }} - {{ batch.courseName }}
+            </option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button
+            (click)="generateQRCode()"
+            [disabled]="loading || !selectedBatchId"
+            class="btn btn-primary">
+            <span *ngIf="loading" class="inline-flex items-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating...
+            </span>
+            <span *ngIf="!loading">Generate QR Code</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QR Code Display -->
+    <div *ngIf="qrCodeData" class="bg-white shadow rounded-lg p-6 text-center">
+      <h3 class="text-lg font-medium text-gray-900 mb-6">Attendance QR Code</h3>
+      
+      <div class="mb-6">
+        <img [src]="qrCodeData.qrCodeImage" [alt]="'QR Code for attendance'" class="mx-auto max-w-sm w-full">
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+        <div>
+          <p class="text-sm text-gray-600">QR Code ID</p>
+          <p class="text-lg font-medium text-gray-900 font-mono">{{ qrCodeData.qrCodeId }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Valid Date</p>
+          <p class="text-lg font-medium text-gray-900">{{ qrCodeData.validDate | date:'MMM dd, yyyy' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Expires At</p>
+          <p class="text-lg font-medium text-gray-900">{{ qrCodeData.expiresAt | date:'HH:mm' }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Status</p>
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+            Active
+          </span>
+        </div>
+      </div>
+      
+      <div class="mt-6 flex justify-center space-x-4">
+        <button
+          (click)="refreshQRCode()"
+          class="btn btn-secondary">
+          Refresh QR Code
+        </button>
+        <button
+          (click)="deactivateQRCode()"
+          class="btn btn-danger">
+          Deactivate QR Code
+        </button>
+      </div>
+      
+      <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <p class="text-blue-800 text-sm">
+          <strong>Instructions:</strong> Display this QR code to students. They can scan it or enter the QR Code ID manually to mark their attendance.
+        </p>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-red-800 text-sm">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <!-- Live Attendance Feed -->
+    <div *ngIf="qrCodeData" class="mt-8 bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Live Attendance Feed</h3>
+      <div class="space-y-2">
+        <div *ngFor="let attendance of liveAttendance" class="flex justify-between items-center py-2 border-b border-gray-100">
+          <div>
+            <p class="text-sm font-medium text-gray-900">{{ attendance.studentName }}</p>
+            <p class="text-xs text-gray-500">{{ attendance.markedAt | date:'HH:mm:ss' }}</p>
+          </div>
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full" [class]="getStatusBadgeClass(attendance.status)">
+            {{ attendance.status }}
+          </span>
+        </div>
+        
+        <div *ngIf="liveAttendance.length === 0" class="text-center text-gray-500 text-sm py-4">
+          No attendance marked yet
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
