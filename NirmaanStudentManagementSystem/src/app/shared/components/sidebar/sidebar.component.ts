@@ -60,6 +60,23 @@ export class SidebarComponent {
     return baseItems;
   }
 
+  getIcon(iconName: string): string {
+    const icons: { [key: string]: string } = {
+      dashboard: '📊',
+      people: '👥',
+      school: '🏫',
+      group: '👥',
+      assessment: '📋',
+      quiz: '❓',
+      calendar: '📅',
+      person: '👤',
+      check: '✅',
+      history: '📅',
+      feedback: '💬'
+    };
+    return icons[iconName] || '📄';
+  }
+
   closeSidebar(): void {
     this.toggle.emit();
   }

@@ -1,56 +1,50 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './core/guards/auth.guard';
-import { RoleGuard } from './core/guards/role.guard';
-import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { AdminDashboardComponent } from '../app/features/dashboard/admin-dashboard/admin-dashboard.component';
+import { TrainerDashboardComponent } from '../app/features/trainer/attendance-management/';
+import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
+import { AuthService } from '../../core/services/auth.service';
+import { inject } from '@angular/core';
 
-export const routes: Routes = [
+export const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: 'redirect',
     pathMatch: 'full'
   },
   {
-    path: 'auth',
-    component: AuthLayoutComponent,
-    children: [
-      {
-        path: 'login',
-        loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
+    path: 'redirect',
+    canActivate: [() => {
+      const authService = inject(AuthService);
+      const user = AuthService.getCurrentUser();
+      const router = inject(import('@angular/router').then(m => m.Router));
+      
+      switch (user?.role) {
+        case 'ADMIN':
+          router.navigate(['/dashboard/admin']);
+          break;
+        case 'TRAINER':
+          router.navigate(['/dashboard/trainer']);
+          break;
+        case 'STUDENT':
+          router.navigate(['/dashboard/student']);
+          break;
+        default:
+          router.navigate(['/auth/login']);
       }
-    ]
+      return false;
+    }],
+    children: []
   },
   {
-    path: '',
-    component: MainLayoutComponent,
-    canActivate: [AuthGuard],
-    children: [
-      {
-        path: 'dashboard',
-        loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES)
-      },
-      {
-        path: 'admin',
-        loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
-        canActivate: [RoleGuard],
-        data: { roles: ['ADMIN'] }
-      },
-      {
-        path: 'trainer',
-        loadChildren: () => import('./features/trainer/trainer.routes').then(m => m.TRAINER_ROUTES),
-        canActivate: [RoleGuard],
-        data: { roles: ['ADMIN', 'TRAINER'] }
-      },
-      {
-        path: 'student',
-        loadChildren: () => import('./features/student/student.routes').then(m => m.STUDENT_ROUTES),
-        canActivate: [RoleGuard],
-        data: { roles: ['ADMIN', 'TRAINER', 'STUDENT'] }
-      }
-    ]
+    path: 'admin',
+    component: AdminDashboardComponent
   },
   {
-    path: '**',
-    redirectTo: '/dashboard'
+    path: 'trainer',
+    component: TrainerDashboardComponent
+  },
+  {
+    path: 'student',
+    component: StudentDashboardComponent
   }
 ];
