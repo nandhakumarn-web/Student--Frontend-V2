@@ -1,1 +1,4 @@
-<p>sidebar works!</p>
+<div *ngIf="isOpen" class="fixed inset-0 flex z-40 md:hidden">
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-75" (click)="closeSidebar()"></div>
+  
+  <div class="relative flex-1>

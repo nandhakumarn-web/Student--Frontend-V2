@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from 'express';
+import { Router } from '@angular/router';
 import { LoginRequest, LoginResponse, User } from '../models/user.model';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,7 @@ export class AuthService {
     localStorage.setItem('token', authResponse.token);
     
     const user: User = {
-      id: 0, // Will be set from token or API call
+      id: 0,
       username: authResponse.username,
       email: authResponse.email,
       firstName: authResponse.firstName,

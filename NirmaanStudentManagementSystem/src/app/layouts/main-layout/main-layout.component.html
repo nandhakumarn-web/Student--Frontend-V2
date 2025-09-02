@@ -1,1 +1,13 @@
-<p>main-layout works!</p>
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-sidebar [isOpen]="sidebarOpen" (toggle)="toggleSidebar()"></app-sidebar>
+  
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+    
+    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
