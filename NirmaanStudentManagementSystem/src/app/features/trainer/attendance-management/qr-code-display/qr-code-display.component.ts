@@ -1,14 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { QRCodeData } from '../../../../core/models/qrcode.model';
 import { Batch } from '../../../../core/models/batch.model';
 import { Attendance } from '../../../../core/models/attendance.model';
 import { QrcodeService } from '../../../../core/services/qrcode.service';
 import { BatchService } from '../../../../core/services/batch.service';
 import { AttendanceService } from '../../../../core/services/attendance.service';
+import { AttendanceStatus } from '../../../../core/models/enums';
 
 @Component({
   selector: 'app-qr-code-display',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './qr-code-display.component.html',
   styleUrl: './qr-code-display.component.css'
 })
@@ -62,20 +66,6 @@ export class QrCodeDisplayComponent implements OnInit, OnDestroy {
             currentStudents: 25,
             schedule: 'Mon-Fri 9:00 AM - 5:00 PM',
             active: true
-          },
-          {
-            id: 2,
-            batchName: 'ITES-2024-02',
-            courseId: 2,
-            courseName: 'ITES Program',
-            trainerId: 1,
-            trainerName: 'John Smith',
-            startDate: new Date('2024-02-01'),
-            endDate: new Date('2024-08-01'),
-            maxStudents: 25,
-            currentStudents: 20,
-            schedule: 'Mon-Fri 10:00 AM - 6:00 PM',
-            active: true
           }
         ];
       }
@@ -127,11 +117,24 @@ export class QrCodeDisplayComponent implements OnInit, OnDestroy {
     }
   }
 
+  getStatusBadgeClass(status: AttendanceStatus): string {
+    switch (status) {
+      case AttendanceStatus.PRESENT:
+        return 'bg-green-100 text-green-800';
+      case AttendanceStatus.LATE:
+        return 'bg-yellow-100 text-yellow-800';
+      case AttendanceStatus.ABSENT:
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+
   private startLiveAttendanceRefresh(): void {
     this.refreshLiveAttendance();
     this.refreshInterval = setInterval(() => {
       this.refreshLiveAttendance();
-    }, 5000); // Refresh every 5 seconds
+    }, 5000);
   }
 
   private stopLiveAttendanceRefresh(): void {
@@ -146,12 +149,15 @@ export class QrCodeDisplayComponent implements OnInit, OnDestroy {
     this.attendanceService.getAttendanceByDate(today).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.liveAttendance = response.
-
-
+          // Sort by most recent first
+          this.liveAttendance = response.data.sort((a, b) => 
+            new Date(b.markedAt).getTime() - new Date(a.markedAt).getTime()
+          ).slice(0, 10); // Show only last 10 entries
         }
+      },
+      error: (error) => {
+        console.error('Error refreshing attendance:', error);
       }
-    }
+    });
   }
 }
-          

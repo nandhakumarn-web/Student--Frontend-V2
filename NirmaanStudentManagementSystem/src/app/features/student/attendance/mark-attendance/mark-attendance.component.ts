@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Attendance } from '../../../../core/models/attendance.model';
 import { AttendanceService } from '../../../../core/services/attendance.service';
 import { AttendanceStatus } from '../../../../core/models/enums';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-mark-attendance',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './mark-attendance.component.html',
   styleUrl: './mark-attendance.component.css',
 })

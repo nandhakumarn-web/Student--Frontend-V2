@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiBaseService } from './api-response.service';
 import { ApiResponse } from '../models/api-response.model';
 import { User, UserRegistrationRequest } from '../models/user.model';
 import { Student } from '../models/student.model';
@@ -10,44 +9,45 @@ import { Trainer } from '../models/trainer.model';
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
-  private readonly API_URL = environment.apiUrl;
-
-  constructor(private http: HttpClient) { }
+export class UserService extends ApiBaseService {
 
   getAllUsers(): Observable<ApiResponse<User[]>> {
-    return this.http.get<ApiResponse<User[]>>(`${this.API_URL}/users`);
+    return this.get<User[]>('/users');
   }
 
   getUserById(id: number): Observable<ApiResponse<User>> {
-    return this.http.get<ApiResponse<User>>(`${this.API_URL}/users/${id}`);
+    return this.get<User>(`/users/${id}`);
   }
 
   createUser(user: UserRegistrationRequest): Observable<ApiResponse<User>> {
-    return this.http.post<ApiResponse<User>>(`${this.API_URL}/users/register`, user);
+    return this.post<User>('/users/register', user);
   }
 
   updateUser(id: number, user: Partial<User>): Observable<ApiResponse<User>> {
-    return this.http.put<ApiResponse<User>>(`${this.API_URL}/users/${id}`, user);
+    return this.put<User>(`/users/${id}`, user);
   }
 
   deleteUser(id: number): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.API_URL}/users/${id}`);
+    return this.delete<void>(`/users/${id}`);
   }
 
   getAllStudents(): Observable<ApiResponse<Student[]>> {
-    return this.http.get<ApiResponse<Student[]>>(`${this.API_URL}/users/students`);
+    return this.get<Student[]>('/users/students');
   }
 
   getAllTrainers(): Observable<ApiResponse<Trainer[]>> {
-    return this.http.get<ApiResponse<Trainer[]>>(`${this.API_URL}/users/trainers`);
+    return this.get<Trainer[]>('/users/trainers');
   }
 
   getMyProfile(): Observable<ApiResponse<User>> {
-    return this.http.get<ApiResponse<User>>(`${this.API_URL}/users/profile`);
+    return this.get<User>('/users/profile');
   }
 
   updateMyProfile(user: Partial<User>): Observable<ApiResponse<User>> {
-    return this.http.put<ApiResponse<User>>(`${this.API_URL}/users/profile`, user);
+    return this.put<User>('/users/profile', user);
+  }
+
+  changePassword(oldPassword: string, newPassword: string): Observable<ApiResponse<void>> {
+    return this.post<void>('/users/change-password', { oldPassword, newPassword });
   }
 }

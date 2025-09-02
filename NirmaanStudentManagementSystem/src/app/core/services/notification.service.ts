@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
+import { Notification } from '../models/notification.model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +53,9 @@ export class NotificationService {
         if (response.success && response.data) {
           this.unreadCountSubject.next(response.data.length);
         }
+      },
+      error: () => {
+        // Handle error silently for now
       }
     });
   }

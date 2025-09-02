@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { User } from '../../../../core/models/user.model';
 import { UserService } from '../../../../core/services/user.service';
 import { Role } from '../../../../core/models/enums';
 
 @Component({
   selector: 'app-user-list',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css',
 })

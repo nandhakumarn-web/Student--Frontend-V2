@@ -1,50 +1,82 @@
 import { Routes } from '@angular/router';
-import { AdminDashboardComponent } from '../app/features/dashboard/admin-dashboard/admin-dashboard.component';
-import { TrainerDashboardComponent } from '../app/features/trainer/attendance-management/';
-import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
-import { AuthService } from '../../core/services/auth.service';
-import { inject } from '@angular/core';
+import { AuthGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { ADMIN_ROUTES } from './features/admin/admin-routing.module';
+import { TRAINER_ROUTES } from './features/trainer/trainer-routing.module';
+import { STUDENT_ROUTES } from './features/student/student-routing.module';
 
-export const DASHBOARD_ROUTES: Routes = [
+export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'redirect',
+    redirectTo: '/auth/login',
     pathMatch: 'full'
   },
   {
-    path: 'redirect',
-    canActivate: [() => {
-      const authService = inject(AuthService);
-      const user = AuthService.getCurrentUser();
-      const router = inject(import('@angular/router').then(m => m.Router));
-      
-      switch (user?.role) {
-        case 'ADMIN':
-          router.navigate(['/dashboard/admin']);
-          break;
-        case 'TRAINER':
-          router.navigate(['/dashboard/trainer']);
-          break;
-        case 'STUDENT':
-          router.navigate(['/dashboard/student']);
-          break;
-        default:
-          router.navigate(['/auth/login']);
+    path: 'auth',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
       }
-      return false;
-    }],
-    children: []
+    ]
   },
   {
-    path: 'admin',
-    component: AdminDashboardComponent
+    path: '',
+    component: MainLayoutComponent,
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'dashboard',
+        children: [
+          {
+            path: 'admin',
+            loadComponent: () => import('./features/dashboard/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent),
+            canActivate: [RoleGuard],
+            data: { roles: ['ADMIN'] }
+          },
+          {
+            path: 'trainer',
+            loadComponent: () => import('./features/dashboard/trainer-dashboard/trainer-dashboard.component').then(m => m.TrainerDashboardComponent),
+            canActivate: [RoleGuard],
+            data: { roles: ['TRAINER'] }
+          },
+          {
+            path: 'student',
+            loadComponent: () => import('./features/dashboard/student-dashboard/student-dashboard.component').then(m => m.StudentDashboardComponent),
+            canActivate: [RoleGuard],
+            data: { roles: ['STUDENT'] }
+          }
+        ]
+      },
+      {
+        path: 'admin',
+        children: ADMIN_ROUTES,
+        canActivate: [RoleGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      {
+        path: 'trainer',
+        children: TRAINER_ROUTES,
+        canActivate: [RoleGuard],
+        data: { roles: ['TRAINER'] }
+      },
+      {
+        path: 'student',
+        children: STUDENT_ROUTES,
+        canActivate: [RoleGuard],
+        data: { roles: ['STUDENT'] }
+      }
+    ]
   },
   {
-    path: 'trainer',
-    component: TrainerDashboardComponent
+    path: 'unauthorized',
+    loadComponent: () => import('./shared/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },
   {
-    path: 'student',
-    component: StudentDashboardComponent
+    path: '**',
+    redirectTo: '/auth/login'
   }
 ];

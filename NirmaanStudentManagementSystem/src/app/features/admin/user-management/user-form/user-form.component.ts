@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from '../../../../core/services/user.service';
-import { Router } from 'express';
-import { ActivatedRoute } from '@angular/router';
 import { User, UserRegistrationRequest } from '../../../../core/models/user.model';
 import { CourseType, Role } from '../../../../core/models/enums';
 
 @Component({
   selector: 'app-user-form',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './user-form.component.html',
   styleUrl: './user-form.component.css'
 })
